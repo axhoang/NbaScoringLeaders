@@ -1,0 +1,38 @@
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+
+# Send a GET request to NBA stats website
+url = 'https://www.nba.com/stats/players/traditional/?sort=PTS&dir=-1'
+response = requests.get(url)
+
+# Parse the HTML page with BeautifulSoup
+soup = BeautifulSoup(response.content, 'html.parser')
+
+# Find the table with player stats data
+table = soup.find('table', {'class': 'table'})
+
+# Extract the player stats data and store in a Pandas DataFrame
+df = pd.read_html(str(table))[0]
+
+# Clean the data
+df = df[['RANK', 'PLAYER', 'TEAM', 'PTS']]
+df = df.rename(columns={'RANK': 'Rank', 'PLAYER': 'Player', 'TEAM': 'Team', 'PTS': 'Points'})
+df['Points'] = pd.to_numeric(df['Points'])
+
+# Perform basic analysis of the data
+mean_points = df['Points'].mean()
+max_points = df['Points'].max()
+
+# Visualize the data using Matplotlib
+import matplotlib.pyplot as plt
+
+plt.bar(df['Player'], df['Points'])
+plt.xticks(rotation=90)
+plt.title('NBA Player Points')
+plt.xlabel('Player')
+plt.ylabel('Points')
+plt.show()
+
+# Save the cleaned data and analysis results to a CSV file
+df.to_csv('nba_player_stats.csv', index=False)
