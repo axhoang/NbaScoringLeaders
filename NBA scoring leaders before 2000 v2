@@ -1,0 +1,33 @@
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+
+# Send a GET request to NBA stats website
+url = 'https://www.basketball-reference.com/teams/'
+response = requests.get(url)
+
+# Parse the HTML page with BeautifulSoup
+soup = BeautifulSoup(response.content, 'html.parser')
+
+# Find the table with team data before 2000
+table = soup.find('table', {'id': 'teams_active'})
+
+# Extract the team data and store in a Pandas DataFrame
+df = pd.read_html(str(table))[0]
+
+# Filter teams by year
+df = df[df['From'] < 2000]
+
+# Clean the data
+df = df[['Franchise', 'From', 'To']]
+df = df.rename(columns={'Franchise': 'Team', 'From': 'Year From', 'To': 'Year To'})
+
+# Perform basic analysis of the data
+num_teams = len(df)
+earliest_year = df['Year From'].min()
+
+# Print the analysis results
+print(f"There are {num_teams} NBA teams before the year 2000, starting from {earliest_year}.")
+
+# Save the cleaned data and analysis results to a CSV file
+df.to_csv('nba_teams_before_2000.csv', index=False)
