@@ -1,0 +1,59 @@
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+import matplotlib.pyplot as plt
+
+def get_nba_player_stats(url):
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, 'html.parser')
+    table = soup.find('table', {'class': 'table'})
+    df = pd.read_html(str(table))[0]
+    df = df[['RANK', 'PLAYER', 'TEAM', 'PTS']]
+    df = df.rename(columns={'RANK': 'Rank', 'PLAYER': 'Player', 'TEAM': 'Team', 'PTS': 'Points'})
+    df['Points'] = pd.to_numeric(df['Points'])
+    return df
+
+def analyze_nba_player_stats(df):
+    mean_points = df['Points'].mean()
+    max_points = df['Points'].max()
+    return mean_points, max_points
+
+def plot_nba_player_stats(df):
+    plt.bar(df['Player'], df['Points'])
+    plt.xticks(rotation=90)
+    plt.title('NBA Player Points')
+    plt.xlabel('Player')
+    plt.ylabel('Points')
+    plt.show()
+
+def save_nba_player_stats(df, filename):
+    df.to_csv(filename, index=False)
+
+def main():
+    url = 'https://www.nba.com/stats/players/traditional/?sort=PTS&dir=-1'
+    df = get_nba_player_stats(url)
+    print("NBA Player stats data retrieved and cleaned!")
+    while True:
+        print("Please choose an action:")
+        print("1. Analyze NBA Player stats data")
+        print("2. Plot NBA Player stats data")
+        print("3. Save NBA Player stats data to a CSV file")
+        print("4. Exit")
+        choice = int(input("Enter your choice: "))
+        if choice == 1:
+            mean_points, max_points = analyze_nba_player_stats(df)
+            print("Mean points per game:", mean_points)
+            print("Max points per game:", max_points)
+        elif choice == 2:
+            plot_nba_player_stats(df)
+        elif choice == 3:
+            filename = input("Enter filename to save the data (e.g. nba_player_stats.csv): ")
+            save_nba_player_stats(df, filename)
+            print("NBA Player stats data saved to", filename)
+        elif choice == 4:
+            break
+        else:
+            print("Invalid choice, please choose again.")
+
+if __name__ == '__main__':
+    main()
