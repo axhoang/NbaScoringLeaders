@@ -1,0 +1,37 @@
+import pandas as pd
+import numpy as np
+
+
+team_salary_data = {'Team': ['Lakers', 'Warriors', 'Bulls', 'Celtics', 'Spurs'],
+                    'Salary Cap': [100000000, 90000000, 80000000, 95000000, 75000000],
+                    'Total Salary': [110000000, 85000000, 75000000, 90000000, 70000000],
+                    'Number of Players': [12, 11, 10, 13, 9]}
+
+# Create a Pandas DataFrame from the dictionary
+team_salary_df = pd.DataFrame(team_salary_data)
+
+# Add a column for average salary per player
+team_salary_df['Avg. Salary per Player'] = team_salary_df['Total Salary'] / team_salary_df['Number of Players']
+
+# Add a column for salary over/under the cap
+team_salary_df['Salary Over/Under Cap'] = team_salary_df['Total Salary'] - team_salary_df['Salary Cap']
+
+# Display the DataFrame
+print(team_salary_df)
+
+# Calculate and display basic summary statistics
+print('\nSummary Statistics:')
+print('Mean Total Salary:', team_salary_df['Total Salary'].mean())
+print('Median Total Salary:', team_salary_df['Total Salary'].median())
+print('Standard Deviation of Total Salary:', team_salary_df['Total Salary'].std())
+
+# Visualize the data using Matplotlib
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots()
+ax.bar(team_salary_df['Team'], team_salary_df['Total Salary'], color='purple')
+ax.set_xticklabels(team_salary_df['Team'], rotation=45, ha='right')
+ax.set_title('NBA Team Salaries')
+ax.set_xlabel('Team')
+ax.set_ylabel('Total Salary')
+plt.show()
